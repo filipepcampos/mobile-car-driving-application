@@ -1,5 +1,8 @@
 package pt.up.fe.mobilecardriving.activity;
 
+import android.content.Intent;
+import android.os.Bundle;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.camera.core.ImageProxy;
@@ -14,6 +17,12 @@ import pt.up.fe.mobilecardriving.view.ResultView;
 
 public class ObjectDetectionActivity extends CameraXActivity<AnalysisResult> {
     private ResultView resultView;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setTitle("Mobile Car Driving");
+    }
 
     @Override
     protected int getContentViewLayoutId() {

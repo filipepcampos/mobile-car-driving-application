@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.util.Size;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -12,17 +11,13 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.annotation.WorkerThread;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.Preview;
-import androidx.camera.core.impl.ImageAnalysisConfig;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.lifecycle.LifecycleOwner;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -32,6 +27,7 @@ import java.util.concurrent.Executor;
 public abstract class CameraXActivity<R> extends BaseModuleActivity {
     private static final int REQUEST_CODE_CAMERA_PERMISSION = 200;
     private static final String[] PERMISSIONS = {Manifest.permission.CAMERA};
+    private static final int ANALYSIS_TIME = 200; // TODO: ADJUST FRAME RATE
 
     private long mLastAnalysisResultTime;
 
@@ -49,14 +45,7 @@ public abstract class CameraXActivity<R> extends BaseModuleActivity {
         setContentView(getContentViewLayoutId());
 
         cameraProviderFuture = ProcessCameraProvider.getInstance(this);
-        cameraProviderFuture.addListener(() -> {
-            try {
-                ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
-                setupCameraX(cameraProvider);
-            } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
-            }
-        }, getExecutor());
+        cameraProviderFuture.addListener(this::setupCameraXWrapper, getExecutor());
 
         startBackgroundThread();
 
@@ -67,12 +56,7 @@ public abstract class CameraXActivity<R> extends BaseModuleActivity {
                     PERMISSIONS,
                     REQUEST_CODE_CAMERA_PERMISSION);
         } else {
-            try {
-                ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
-                setupCameraX(cameraProvider);
-            } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
-            }
+            this.setupCameraXWrapper();
         }
     }
 
@@ -88,13 +72,7 @@ public abstract class CameraXActivity<R> extends BaseModuleActivity {
                         .show();
                 finish();
             } else {
-                // TODO: THIS TRY CATCH COULD BE A FUNCTION
-                try {
-                    ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
-                    setupCameraX(cameraProvider);
-                } catch (ExecutionException | InterruptedException e) {
-                    e.printStackTrace();
-                }
+                this.setupCameraXWrapper();
             }
         }
     }
@@ -105,9 +83,9 @@ public abstract class CameraXActivity<R> extends BaseModuleActivity {
         final CameraSelector cameraSelector = this.setupCameraSelector();
         final Preview preview = this.setupCameraPreview();
         //final ImageCapture imageCapture = this.setupImageCapture(); // TODO: MAYBE THIS IS NOT NECESSARY?
-        //final ImageAnalysis imageAnalysis = this.setupImageAnalysis();
+        //final ImageAnalysis imageAnalysis = this.setupImageAnalysis(); // TODO: UNCOMMENT WHEN IMPLEMENTING ANALYSIS
 
-        //cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture, imageAnalysis);
+        //cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture, imageAnalysis); // TODO: UNCOMMENT WHEN IMPLEMENTING ANALYSIS
         cameraProvider.bindToLifecycle(this, cameraSelector, preview);
     }
 
@@ -137,22 +115,28 @@ public abstract class CameraXActivity<R> extends BaseModuleActivity {
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build();
 
-        imageAnalysis.setAnalyzer(this.getExecutor(), new ImageAnalysis.Analyzer() {
-            @Override
-            public void analyze(@NonNull ImageProxy imageProxy) {
-                if (SystemClock.elapsedRealtime() - mLastAnalysisResultTime < 500) {
-                    return;
-                }
-                final R result = analyzeImage(imageProxy);
-                if (result != null) {
-                    mLastAnalysisResultTime = SystemClock.elapsedRealtime();
-                    runOnUiThread(() -> applyToUiAnalyzeImageResult(result));
-                }
-                imageProxy.close();
+        imageAnalysis.setAnalyzer(this.getExecutor(), imageProxy -> {
+            if (SystemClock.elapsedRealtime() - mLastAnalysisResultTime < ANALYSIS_TIME) {
+                return;
             }
+            final R result = analyzeImage(imageProxy);
+            if (result != null) {
+                mLastAnalysisResultTime = SystemClock.elapsedRealtime();
+                runOnUiThread(() -> applyToUiAnalyzeImageResult(result));
+            }
+            imageProxy.close();
         });
 
         return imageAnalysis;
+    }
+
+    private void setupCameraXWrapper() {
+        try {
+            ProcessCameraProvider cameraProvider = cameraProviderFuture.get();
+            setupCameraX(cameraProvider);
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @WorkerThread

@@ -8,6 +8,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitle("Mobile Car Driving");
+        // TODO: IN THE FUTURE, THIS ACTIVITY COULD BE A MENU
         startActivity(new Intent(this, ObjectDetectionActivity.class));
     }
 }
