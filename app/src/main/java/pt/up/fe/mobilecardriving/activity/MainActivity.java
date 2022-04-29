@@ -1,16 +1,15 @@
 package pt.up.fe.mobilecardriving.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
-
+import android.content.Intent;
 import android.os.Bundle;
 
-import pt.up.fe.mobilecardriving.R;
-
 public class MainActivity extends AppCompatActivity {
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setTitle("Mobile Car Driving");
+        // TODO: IN THE FUTURE, THIS ACTIVITY COULD BE A MENU
+        startActivity(new Intent(this, ObjectDetectionActivity.class));
     }
 }
