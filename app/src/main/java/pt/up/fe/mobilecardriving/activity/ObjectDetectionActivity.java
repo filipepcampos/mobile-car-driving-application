@@ -21,12 +21,11 @@ public class ObjectDetectionActivity extends CameraXActivity<AnalysisResult> {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle("Mobile Car Driving");
     }
 
     @Override
     protected int getContentViewLayoutId() {
-        return R.layout.activity_main;
+        return R.layout.activity_object_detection;
     }
 
     @Override
