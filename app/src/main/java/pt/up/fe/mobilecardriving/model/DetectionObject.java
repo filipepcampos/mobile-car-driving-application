@@ -2,12 +2,12 @@ package pt.up.fe.mobilecardriving.model;
 
 import android.graphics.Rect;
 
-public class BBox {
+public class DetectionObject {
     private int classIndex;
     private float score;
     private Rect rect;
 
-    public BBox(int classIndex, float score, Rect rect) {
+    public DetectionObject(int classIndex, float score, Rect rect) {
         this.classIndex = classIndex;
         this.score = score;
         this.rect = rect;
@@ -23,5 +23,14 @@ public class BBox {
 
     public Rect getRect() {
         return this.rect;
+    }
+
+    @Override
+    public String toString() {
+        return "DetectionObject{" +
+                "classIndex=" + classIndex +
+                ", score=" + score +
+                ", rect=" + rect +
+                '}';
     }
 }
