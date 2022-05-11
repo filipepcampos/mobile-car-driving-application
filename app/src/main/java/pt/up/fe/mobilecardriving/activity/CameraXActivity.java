@@ -27,7 +27,7 @@ import java.util.concurrent.Executor;
 public abstract class CameraXActivity<R> extends BaseModuleActivity {
     private static final int REQUEST_CODE_CAMERA_PERMISSION = 200;
     private static final String[] PERMISSIONS = {Manifest.permission.CAMERA};
-    private static final int ANALYSIS_TIME = 200; // TODO: ADJUST FRAME RATE
+    private static final int ANALYSIS_TIME = 40; // TODO: ADJUST FRAME RATE
 
     private long mLastAnalysisResultTime;
 
@@ -82,11 +82,9 @@ public abstract class CameraXActivity<R> extends BaseModuleActivity {
 
         final CameraSelector cameraSelector = this.setupCameraSelector();
         final Preview preview = this.setupCameraPreview();
-        //final ImageCapture imageCapture = this.setupImageCapture(); // TODO: MAYBE THIS IS NOT NECESSARY?
-        //final ImageAnalysis imageAnalysis = this.setupImageAnalysis(); // TODO: UNCOMMENT WHEN IMPLEMENTING ANALYSIS
+        final ImageAnalysis imageAnalysis = this.setupImageAnalysis();
 
-        //cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture, imageAnalysis); // TODO: UNCOMMENT WHEN IMPLEMENTING ANALYSIS
-        cameraProvider.bindToLifecycle(this, cameraSelector, preview);
+        cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
     }
 
     private Preview setupCameraPreview() {
@@ -98,12 +96,6 @@ public abstract class CameraXActivity<R> extends BaseModuleActivity {
     private CameraSelector setupCameraSelector() {
         return new CameraSelector.Builder()
                 .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-                .build();
-    }
-
-    private ImageCapture setupImageCapture() {
-        return new ImageCapture.Builder()
-                .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
                 .build();
     }
 
