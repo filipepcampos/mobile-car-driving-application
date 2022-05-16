@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -12,7 +13,6 @@ import androidx.annotation.UiThread;
 import androidx.annotation.WorkerThread;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
-import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
@@ -27,17 +27,28 @@ import java.util.concurrent.Executor;
 public abstract class CameraXActivity<R> extends BaseModuleActivity {
     private static final int REQUEST_CODE_CAMERA_PERMISSION = 200;
     private static final String[] PERMISSIONS = {Manifest.permission.CAMERA};
-    private static final int ANALYSIS_TIME = 40; // TODO: ADJUST FRAME RATE
 
-    private long mLastAnalysisResultTime;
-
+    private long lastAnalysisResultTime;
+    private int analysisTime;
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
+
+    public CameraXActivity() {
+        this.lastAnalysisResultTime = 0;
+        this.analysisTime = 0;
+    }
 
     protected abstract int getContentViewLayoutId();
 
     protected abstract PreviewView getCameraPreviewView();
 
     protected abstract Executor getExecutor();
+
+    @WorkerThread
+    @Nullable
+    protected abstract R analyzeImage(ImageProxy image);
+
+    @UiThread
+    protected abstract void applyToUiAnalyzeImageResult(R result);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +74,7 @@ public abstract class CameraXActivity<R> extends BaseModuleActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // TODO: MOVE VERIFICATION TO MENU
         if (requestCode == REQUEST_CODE_CAMERA_PERMISSION) {
             if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
                 Toast.makeText(
@@ -108,13 +120,13 @@ public abstract class CameraXActivity<R> extends BaseModuleActivity {
                 .build();
 
         imageAnalysis.setAnalyzer(this.getExecutor(), imageProxy -> {
-            if (SystemClock.elapsedRealtime() - mLastAnalysisResultTime < ANALYSIS_TIME) {
-                return;
-            }
-            final R result = analyzeImage(imageProxy);
-            if (result != null) {
-                mLastAnalysisResultTime = SystemClock.elapsedRealtime();
-                runOnUiThread(() -> applyToUiAnalyzeImageResult(result));
+            long currentTime = SystemClock.elapsedRealtime();
+            if (currentTime - this.lastAnalysisResultTime >= this.analysisTime) {
+                final R result = analyzeImage(imageProxy);
+                if (result != null) {
+                    this.lastAnalysisResultTime = currentTime;
+                    runOnUiThread(() -> applyToUiAnalyzeImageResult(result));
+                }
             }
             imageProxy.close();
         });
@@ -131,10 +143,11 @@ public abstract class CameraXActivity<R> extends BaseModuleActivity {
         }
     }
 
-    @WorkerThread
-    @Nullable
-    protected abstract R analyzeImage(ImageProxy image);
+    public int getAnalysisTime() {
+        return  this.analysisTime;
+    }
 
-    @UiThread
-    protected abstract void applyToUiAnalyzeImageResult(R result);
+    public void setAnalysisTime(int analysisTime) {
+        this.analysisTime = analysisTime;
+    }
 }

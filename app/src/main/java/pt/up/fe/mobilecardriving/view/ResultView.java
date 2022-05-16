@@ -43,6 +43,7 @@ public class ResultView extends View {
         super.onDraw(canvas);
         // TODO: DELETE DEBUG CODE
         if (this.result != null) {
+            canvas.drawText("Speed: " + this.result.getSpeed() + " km/h", 600, 50, textPaint);
             List<DetectionObject> objects = this.result.getObjects();
             canvas.drawText("Objects Detected:", 10, 50, textPaint);
             for (int i = 0; i < objects.size(); ++i)

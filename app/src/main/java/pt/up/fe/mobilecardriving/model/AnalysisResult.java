@@ -5,13 +5,19 @@ import java.util.List;
 
 public class AnalysisResult {
     private List<DetectionObject> objects;
+    private float speed;
 
     public AnalysisResult() {
-        this(new LinkedList<>());
+        this(0);
     }
 
-    public AnalysisResult(List<DetectionObject> objects) {
+    public AnalysisResult(float speed) {
+        this(new LinkedList<>(), speed);
+    }
+
+    public AnalysisResult(List<DetectionObject> objects, float speed) {
         this.objects = objects;
+        this.speed = speed;
     }
 
     public List<DetectionObject> getObjects() {
@@ -20,5 +26,9 @@ public class AnalysisResult {
 
     public void addObject(DetectionObject object) {
         this.objects.add(object);
+    }
+
+    public float getSpeed() {
+        return this.speed;
     }
 }
