@@ -2,7 +2,6 @@ package pt.up.fe.mobilecardriving.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,7 +9,6 @@ import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
-import android.hardware.SensorManager;
 import android.location.LocationManager;
 import android.media.Image;
 import android.os.Bundle;
@@ -31,8 +29,9 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 
 import pt.up.fe.mobilecardriving.R;
-import pt.up.fe.mobilecardriving.detection.ObjectDetector;
-import pt.up.fe.mobilecardriving.detection.TestModel;
+import pt.up.fe.mobilecardriving.detection.analysis.DetectionAnalyzer;
+import pt.up.fe.mobilecardriving.detection.model.ObjectDetector;
+import pt.up.fe.mobilecardriving.detection.model.TestModel;
 import pt.up.fe.mobilecardriving.model.AnalysisResult;
 import pt.up.fe.mobilecardriving.model.DetectionObject;
 import pt.up.fe.mobilecardriving.view.ResultView;
@@ -43,6 +42,7 @@ public class ObjectDetectionActivity extends CameraXActivity<AnalysisResult> {
 
     private MotionTracker motionTracker;
     private ObjectDetector objectDetector;
+    private DetectionAnalyzer detectionAnalyzer;
     private ResultView resultView;
 
     @Override
@@ -50,6 +50,7 @@ public class ObjectDetectionActivity extends CameraXActivity<AnalysisResult> {
         super.onCreate(savedInstanceState);
         super.setAnalysisTime(40);
         this.objectDetector = new TestModel(); // TODO: REPLACE MOCK MODEL
+        this.detectionAnalyzer = new DetectionAnalyzer();
         this.resultView = findViewById(R.id.resultView);
 
         // TODO: MOVE VERIFICATION TO MENU
@@ -119,8 +120,10 @@ public class ObjectDetectionActivity extends CameraXActivity<AnalysisResult> {
         bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
 
         List<DetectionObject> objects = this.objectDetector.evaluate(bitmap);
-        // TODO: CREATE METHOD THAT ANALYSES THE OBJECTS AND RETURNS AN ANALYSIS RESULT
-        return new AnalysisResult(objects, this.motionTracker.getSpeed());
+
+        this.detectionAnalyzer.update(objects, this.motionTracker.getSpeed());
+
+        return this.detectionAnalyzer.getAnalysisResult();
     }
 
     private static Bitmap imgToBitmap(Image image) {

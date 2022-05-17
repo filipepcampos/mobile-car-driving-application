@@ -1,34 +1,30 @@
 package pt.up.fe.mobilecardriving.model;
 
+import pt.up.fe.mobilecardriving.detection.analysis.warning.Warning;
+
 import java.util.LinkedList;
 import java.util.List;
 
 public class AnalysisResult {
-    private List<DetectionObject> objects;
-    private float speed;
+    private final List<DetectionObject> objects;
+    private final List<Warning> warnings;
+    private final MotionState motionState;
 
-    public AnalysisResult() {
-        this(0);
-    }
-
-    public AnalysisResult(float speed) {
-        this(new LinkedList<>(), speed);
-    }
-
-    public AnalysisResult(List<DetectionObject> objects, float speed) {
+    public AnalysisResult(List<DetectionObject> objects, List<Warning> warnings, MotionState motionState) {
         this.objects = objects;
-        this.speed = speed;
+        this.warnings = warnings;
+        this.motionState = motionState;
     }
 
     public List<DetectionObject> getObjects() {
         return this.objects;
     }
 
-    public void addObject(DetectionObject object) {
-        this.objects.add(object);
+    public List<Warning> getWarnings() {
+        return this.warnings;
     }
 
-    public float getSpeed() {
-        return this.speed;
+    public MotionState getMotionState() {
+        return this.motionState;
     }
 }

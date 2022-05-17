@@ -1,4 +1,4 @@
-package pt.up.fe.mobilecardriving.detection;
+package pt.up.fe.mobilecardriving.detection.model;
 
 import android.graphics.Bitmap;
 
