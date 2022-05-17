@@ -9,10 +9,12 @@ import android.view.View;
 
 import java.util.List;
 
+import pt.up.fe.mobilecardriving.detection.analysis.warning.Warning;
 import pt.up.fe.mobilecardriving.model.AnalysisResult;
 import pt.up.fe.mobilecardriving.model.DetectionObject;
 
 public class ResultView extends View {
+    private static final String[] MOTION_TEXT = new String[]{"STATIONARY", "SLOW", "MEDIUM", "HIGH"};
     private AnalysisResult result;
 
     private Paint textPaint;
@@ -43,11 +45,19 @@ public class ResultView extends View {
         super.onDraw(canvas);
         // TODO: DELETE DEBUG CODE
         if (this.result != null) {
-            canvas.drawText("Speed: " + this.result.getSpeed() + " km/h", 600, 50, textPaint);
+            canvas.drawText("Speed: " + ResultView.MOTION_TEXT[this.result.getMotionState().ordinal()], 600, 50, textPaint);
             List<DetectionObject> objects = this.result.getObjects();
             canvas.drawText("Objects Detected:", 10, 50, textPaint);
-            for (int i = 0; i < objects.size(); ++i)
+            int i;
+            for (i = 0; i < objects.size(); ++i)
                 canvas.drawText(objects.get(i).toString(), 20, 50+40 * (i+1), textPaint);
+
+            List<Warning> warnings = this.result.getWarnings();
+            ++i;
+            canvas.drawText("Warnings:", 10, 50+40*(i+1), textPaint);
+            ++i;
+            for (int j = 0; j < warnings.size(); ++j, ++i)
+                canvas.drawText(warnings.get(j).getMessage(), 20, 50+40 * (i+1), textPaint);
         }
         // TODO: SHOW THE INFORMATION OF ANALYSIS RESULT
     }

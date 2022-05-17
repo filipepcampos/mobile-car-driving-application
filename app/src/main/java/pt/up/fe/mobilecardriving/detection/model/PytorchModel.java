@@ -1,4 +1,4 @@
-package pt.up.fe.mobilecardriving.detection;
+package pt.up.fe.mobilecardriving.detection.model;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pt.up.fe.mobilecardriving.AssetLoader;
-import pt.up.fe.mobilecardriving.model.AnalysisResult;
 import pt.up.fe.mobilecardriving.model.DetectionObject;
 
 public class PytorchModel implements ObjectDetector {
