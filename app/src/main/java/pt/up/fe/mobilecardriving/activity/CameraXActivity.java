@@ -4,7 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.util.Log;
+import android.util.Size;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -94,6 +94,7 @@ public abstract class CameraXActivity<R> extends BaseModuleActivity {
 
         final CameraSelector cameraSelector = this.setupCameraSelector();
         final Preview preview = this.setupCameraPreview();
+        System.out.println("PREVIEW RES: " + preview.getResolutionInfo());
         final ImageAnalysis imageAnalysis = this.setupImageAnalysis();
 
         cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageAnalysis);
@@ -115,7 +116,7 @@ public abstract class CameraXActivity<R> extends BaseModuleActivity {
         final ImageAnalysis imageAnalysis = new ImageAnalysis.Builder()
                 // TODO: enable the following line if RGBA output is needed.
                 //.setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
-                //.setTargetResolution(new Size(1280, 720))
+                .setTargetResolution(new Size(720, 720/4))
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                 .build();
 

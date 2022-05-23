@@ -6,7 +6,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
-import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
 import android.location.LocationManager;
@@ -23,15 +22,17 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 
 import pt.up.fe.mobilecardriving.R;
+import pt.up.fe.mobilecardriving.detection.model.PytorchModel;
 import pt.up.fe.mobilecardriving.detection.analysis.DetectionAnalyzer;
 import pt.up.fe.mobilecardriving.detection.model.ObjectDetector;
-import pt.up.fe.mobilecardriving.detection.model.TestModel;
 import pt.up.fe.mobilecardriving.model.AnalysisResult;
 import pt.up.fe.mobilecardriving.model.DetectionObject;
 import pt.up.fe.mobilecardriving.view.ResultView;
@@ -49,7 +50,12 @@ public class ObjectDetectionActivity extends CameraXActivity<AnalysisResult> {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.setAnalysisTime(40);
-        this.objectDetector = new TestModel(); // TODO: REPLACE MOCK MODEL
+
+        try {
+            this.objectDetector = new PytorchModel(getApplicationContext(), "mobile_next0.ptl");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         this.detectionAnalyzer = new DetectionAnalyzer();
         this.resultView = findViewById(R.id.resultView);
 
@@ -115,13 +121,11 @@ public class ObjectDetectionActivity extends CameraXActivity<AnalysisResult> {
         @SuppressLint("UnsafeOptInUsageError")
         Bitmap bitmap = imgToBitmap(Objects.requireNonNull(image.getImage()));
 
-        Matrix matrix = new Matrix();
-        matrix.postRotate(90.0f); // TODO: NOT SURE WHY WE NEED THIS
-        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        int imageHeight = (int) bitmap.getWidth() / 4; // 4:1 aspect ratio
+        Bitmap croppedBitmap = Bitmap.createBitmap(bitmap, 0, bitmap.getHeight()-imageHeight, bitmap.getWidth(), imageHeight);
 
-        List<DetectionObject> objects = this.objectDetector.evaluate(bitmap);
-
-        this.detectionAnalyzer.update(objects, this.motionTracker.getSpeed());
+        List<DetectionObject> objects = this.objectDetector.evaluate(croppedBitmap);
+        this.detectionAnalyzer.update(objects, this.motionTracker.getSpeed(), croppedBitmap);
 
         return this.detectionAnalyzer.getAnalysisResult();
     }
