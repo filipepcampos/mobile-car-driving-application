@@ -50,7 +50,7 @@ public class ObjectDetectionActivity extends CameraXActivity<AnalysisResult> imp
         super.setAnalysisTime(40);
 
         try {
-            this.objectDetector = new PytorchModel(getApplicationContext(), "mobile_next0.ptl");
+            this.objectDetector = new PytorchModel(getApplicationContext(), "model.ptl");
         } catch (IOException e) {
             e.printStackTrace();
         }
