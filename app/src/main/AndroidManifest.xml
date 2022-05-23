@@ -27,7 +27,7 @@
         <activity
             android:name=".activity.ObjectDetectionActivity"
             android:screenOrientation="landscape"
-            android:theme="@style/AppTheme.NoActionBar"
+            android:theme="@style/AppTheme.NoStatusBar"
             android:exported="true" />
     </application>
 

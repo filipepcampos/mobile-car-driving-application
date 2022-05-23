@@ -4,25 +4,37 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.pm.PackageManager;
+import android.location.GnssStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
 public class MotionTracker implements LocationListener {
+    private ProviderListener providerListener;
     private final LocationManager locationManager;
     private Location previousLocation;
     private float speed;
 
     public MotionTracker(LocationManager locationManager) {
+        this.providerListener = null;
         this.locationManager = locationManager;
         this.speed = 0;
     }
 
     public float getSpeed() {
         return this.speed;
+    }
+
+    public boolean isProviderEnabled() {
+        return this.locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+    }
+
+    public void setProviderListener(ProviderListener listener) {
+        this.providerListener = listener;
     }
 
     @Override
@@ -38,16 +50,19 @@ public class MotionTracker implements LocationListener {
     }
 
     @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {}
+    public void onProviderEnabled(@NonNull String provider) {
+        if (MotionTracker.this.providerListener != null)
+            MotionTracker.this.providerListener.onProviderEnabled();
+    }
 
     @Override
-    public void onProviderEnabled(String provider) {}
-
-    @Override
-    public void onProviderDisabled(String provider) {}
+    public void onProviderDisabled(@NonNull String provider) {
+        if (MotionTracker.this.providerListener != null)
+            MotionTracker.this.providerListener.onProviderDisabled();
+    }
 
     @SuppressLint("MissingPermission")
-    public void resume(Activity activity) {
+    public void resume() {
         this.locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
     }
 

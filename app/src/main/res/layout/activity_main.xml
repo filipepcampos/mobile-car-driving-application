@@ -1,9 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".activity.MainActivity">
+                                                   xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                   xmlns:tools="http://schemas.android.com/tools"
+                                                   android:layout_width="match_parent"
+                                                   android:layout_height="match_parent"
+                                                   tools:context=".activity.MainActivity"
+                                                   tools:visibility="visible" android:background="@color/white">
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+            android:id="@+id/top_layout">
+
+        <ImageView
+                android:id="@+id/feup_logo"
+                android:layout_width="135dp"
+                android:layout_height="45dp"
+                android:contentDescription="feup_logo"
+                app:srcCompat="@drawable/feup_logo"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="10dp" app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="10dp"/>
+        <pt.up.fe.mobilecardriving.view.PermissionIcon
+                android:id="@+id/gps_icon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:contentDescription="gps_icon"
+                app:tint="#D12121"
+                app:srcCompat="@drawable/gps_icon"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="35dp" android:layout_marginEnd="10dp"
+                app:layout_constraintEnd_toEndOf="parent"/>
+        <pt.up.fe.mobilecardriving.view.PermissionIcon
+                android:id="@+id/camera_icon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:contentDescription="camera_icon"
+                app:srcCompat="@drawable/camera_icon"
+                app:tint="#8ED121" app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="10dp" android:layout_marginEnd="10dp"
+                app:layout_constraintEnd_toEndOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toBottomOf="@+id/top_layout"
+            app:layout_constraintBottom_toTopOf="@+id/bottom_layout" android:id="@+id/middle_layout"
+            android:gravity="center_horizontal|center_vertical">
+        <TextView
+                android:id="@+id/menu_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mobile Car Driving"
+                android:textSize="37sp"
+                android:textColor="@color/brown"
+                android:textStyle="bold"/>
+        <ImageView
+                android:id="@+id/car_logo"
+                android:layout_width="244dp"
+                android:layout_height="120dp"
+                android:contentDescription="car_logo"
+                app:srcCompat="@drawable/car_logo" android:layout_marginTop="50dp" android:layout_marginBottom="40dp"/>
+        <Button
+                android:id="@+id/start_button"
+                android:layout_width="100dp"
+                android:layout_height="50dp"
+                android:text="Start"
+                android:backgroundTint="@color/brown"
+                android:textColor="@color/white" android:textSize="18sp"
+        />
+    </LinearLayout>
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:id="@+id/bottom_layout"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+                android:id="@+id/credits"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:lines="6"
+                android:maxLines="6"
+                android:gravity="center"
+                android:text="Developed with great affection by:\n\nAndré Cruz, Filipe Campos, Francisco Cerqueira,\n Ricardo Cruz and Vasco Alves."
+                android:textSize="12sp"
+                android:textColor="@color/black"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
