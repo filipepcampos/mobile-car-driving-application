@@ -2,6 +2,7 @@ package pt.up.fe.mobilecardriving.activity;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -37,10 +38,7 @@ import pt.up.fe.mobilecardriving.model.AnalysisResult;
 import pt.up.fe.mobilecardriving.model.DetectionObject;
 import pt.up.fe.mobilecardriving.view.ResultView;
 
-public class ObjectDetectionActivity extends CameraXActivity<AnalysisResult> {
-    private static final int REQUEST_CODE_LOCATION_PERMISSION = 201;
-    private static final String[] PERMISSIONS = {Manifest.permission.ACCESS_FINE_LOCATION};
-
+public class ObjectDetectionActivity extends CameraXActivity<AnalysisResult> implements ProviderListener {
     private MotionTracker motionTracker;
     private ObjectDetector objectDetector;
     private DetectionAnalyzer detectionAnalyzer;
@@ -59,38 +57,19 @@ public class ObjectDetectionActivity extends CameraXActivity<AnalysisResult> {
         this.detectionAnalyzer = new DetectionAnalyzer();
         this.resultView = findViewById(R.id.resultView);
 
-        // TODO: MOVE VERIFICATION TO MENU
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                    this,
-                    PERMISSIONS,
-                    REQUEST_CODE_LOCATION_PERMISSION);
-        } else {
-            this.setupTracker();
-        }
+        this.setupTracker();
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == REQUEST_CODE_LOCATION_PERMISSION) {
-            if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                Toast.makeText(
-                                this,
-                                "You can't use object detection example without granting GPS permission",
-                                Toast.LENGTH_LONG)
-                        .show();
-                finish();
-            } else {
-                this.setupTracker();
-            }
-        }
+    protected void onDestroy() {
+        super.onDestroy();
+        this.motionTracker.pause();
     }
 
     private void setupTracker() {
         this.motionTracker = new MotionTracker((LocationManager) getSystemService(LOCATION_SERVICE));
-        this.motionTracker.resume(this);
+        this.motionTracker.setProviderListener(this);
+        this.motionTracker.resume();
     }
 
     @Override
@@ -151,5 +130,15 @@ public class ObjectDetectionActivity extends CameraXActivity<AnalysisResult> {
 
         byte[] imageBytes = out.toByteArray();
         return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+    }
+
+    @Override
+    public void onProviderEnabled() {}
+
+    @Override
+    public void onProviderDisabled() {
+        Intent intent = new Intent(ObjectDetectionActivity.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 }

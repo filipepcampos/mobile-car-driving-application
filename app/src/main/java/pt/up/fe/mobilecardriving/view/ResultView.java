@@ -24,11 +24,15 @@ public class ResultView extends View {
     private Paint textPaint;
 
     public ResultView(Context context) {
-        super(context);
+        this(context, null);
     }
 
     public ResultView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs, 0);
+    }
+
+    public ResultView(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
 
         this.backgroundPaint = new Paint();
         backgroundPaint.setColor(Color.BLACK);
@@ -49,10 +53,6 @@ public class ResultView extends View {
         detectionPaint.setAlpha(128);
         detectionPaint.setStyle(Paint.Style.FILL);
         detectionPaint.setTextSize(32);
-    }
-
-    public ResultView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
     }
 
     public void setResult(AnalysisResult result) {

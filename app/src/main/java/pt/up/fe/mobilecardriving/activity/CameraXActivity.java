@@ -25,9 +25,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
 public abstract class CameraXActivity<R> extends BaseModuleActivity {
-    private static final int REQUEST_CODE_CAMERA_PERMISSION = 200;
-    private static final String[] PERMISSIONS = {Manifest.permission.CAMERA};
-
     private long lastAnalysisResultTime;
     private int analysisTime;
     private ListenableFuture<ProcessCameraProvider> cameraProviderFuture;
@@ -60,33 +57,7 @@ public abstract class CameraXActivity<R> extends BaseModuleActivity {
 
         startBackgroundThread();
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                    this,
-                    PERMISSIONS,
-                    REQUEST_CODE_CAMERA_PERMISSION);
-        } else {
-            this.setupCameraXWrapper();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        // TODO: MOVE VERIFICATION TO MENU
-        if (requestCode == REQUEST_CODE_CAMERA_PERMISSION) {
-            if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
-                Toast.makeText(
-                        this,
-                        "You can't use object detection example without granting CAMERA permission",
-                        Toast.LENGTH_LONG)
-                        .show();
-                finish();
-            } else {
-                this.setupCameraXWrapper();
-            }
-        }
+        this.setupCameraXWrapper();
     }
 
     private void setupCameraX(ProcessCameraProvider cameraProvider) {
