@@ -31,6 +31,7 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 
 import pt.up.fe.mobilecardriving.R;
+import pt.up.fe.mobilecardriving.detection.model.EvaluationResult;
 import pt.up.fe.mobilecardriving.detection.model.PytorchModel;
 import pt.up.fe.mobilecardriving.detection.analysis.DetectionAnalyzer;
 import pt.up.fe.mobilecardriving.detection.model.ObjectDetector;
@@ -54,7 +55,7 @@ public class ObjectDetectionActivity extends CameraXActivity<AnalysisResult> imp
         } catch (IOException e) {
             e.printStackTrace();
         }
-        this.detectionAnalyzer = new DetectionAnalyzer();
+        this.detectionAnalyzer = new DetectionAnalyzer(this.objectDetector.getDetectionWidth(), this.objectDetector.getDetectionHeight());
         this.resultView = findViewById(R.id.resultView);
 
         this.setupTracker();
@@ -103,8 +104,8 @@ public class ObjectDetectionActivity extends CameraXActivity<AnalysisResult> imp
         int imageHeight = (int) bitmap.getWidth() / 4; // 4:1 aspect ratio
         Bitmap croppedBitmap = Bitmap.createBitmap(bitmap, 0, bitmap.getHeight()-imageHeight, bitmap.getWidth(), imageHeight);
 
-        List<DetectionObject> objects = this.objectDetector.evaluate(croppedBitmap);
-        this.detectionAnalyzer.update(objects, this.motionTracker.getSpeed(), croppedBitmap);
+        EvaluationResult evaluationResult = this.objectDetector.evaluate(croppedBitmap);
+        this.detectionAnalyzer.update(evaluationResult, this.motionTracker.getSpeed(), croppedBitmap);
 
         return this.detectionAnalyzer.getAnalysisResult();
     }

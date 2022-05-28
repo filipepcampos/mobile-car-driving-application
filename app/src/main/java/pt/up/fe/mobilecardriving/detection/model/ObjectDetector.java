@@ -7,5 +7,9 @@ import java.util.List;
 import pt.up.fe.mobilecardriving.model.DetectionObject;
 
 public interface ObjectDetector {
-    List<DetectionObject> evaluate(Bitmap imageBitmap);
+    int getDetectionHeight();
+
+    int getDetectionWidth();
+
+    EvaluationResult evaluate(Bitmap imageBitmap);
 }
