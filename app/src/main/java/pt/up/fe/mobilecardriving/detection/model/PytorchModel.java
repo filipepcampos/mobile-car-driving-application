@@ -21,7 +21,7 @@ import pt.up.fe.mobilecardriving.model.DetectionObject;
 
 public class PytorchModel implements ObjectDetector {
     private final static int height = 8, width = 32;
-    private final static int numClasses = 7;
+    private final static int numClasses = 12;
     private final Module module;
 
     public PytorchModel(Context context, String filepath) throws IOException {
@@ -34,6 +34,10 @@ public class PytorchModel implements ObjectDetector {
 
     public int getDetectionWidth() {
         return width;
+    }
+
+    public int getNumClasses() {
+        return numClasses;
     }
 
     public EvaluationResult evaluate(Bitmap imageBitmap) {
@@ -49,7 +53,7 @@ public class PytorchModel implements ObjectDetector {
 
         // hasObjs shape: [1, 1, 8, 32]
         Tensor hasObjsTensor = Objects.requireNonNull(outputMap.get("hasobjs")).toTensor();
-        // classesTensor shape: [1, 7, 8, 32] (7 classes)
+        // classesTensor shape: [1, 12, 8, 32] (12 classes)
         Tensor classesTensor = Objects.requireNonNull(outputMap.get("classes")).toTensor();
 
         float[] hasObjsArray = hasObjsTensor.getDataAsFloatArray(); // Length 256 (8*32)

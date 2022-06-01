@@ -20,8 +20,8 @@ public class ResultView extends View {
     private AnalysisResult result;
 
     private Paint backgroundPaint;
-    private Paint detectionPaint;
     private Paint textPaint;
+    private Paint[] detectionPaints;
 
     public ResultView(Context context) {
         this(context, null);
@@ -47,12 +47,27 @@ public class ResultView extends View {
         textPaint.setTextSize(32);
 
 
-        this.detectionPaint = new Paint();
-        detectionPaint.setColor(Color.RED);
-        detectionPaint.setStrokeWidth(0);
-        detectionPaint.setAlpha(128);
-        detectionPaint.setStyle(Paint.Style.FILL);
-        detectionPaint.setTextSize(32);
+        Paint carPaint = new Paint();
+        carPaint.setColor(Color.RED);
+        carPaint.setAlpha(128);
+        carPaint.setStyle(Paint.Style.FILL);
+
+        Paint pedestrianPaint = new Paint();
+        pedestrianPaint.setColor(Color.GREEN);
+        pedestrianPaint.setAlpha(128);
+        pedestrianPaint.setStyle(Paint.Style.FILL);
+
+        Paint signPaint = new Paint();
+        signPaint.setColor(Color.BLUE);
+        signPaint.setAlpha(128);
+        signPaint.setStyle(Paint.Style.FILL);
+
+        // 'Car', 'Cyclist', 'Pedestrian', 'Person_sitting', 'Tram', 'Truck', 'Van'
+        // 'stop', 'Give way', 'prohibited', 'Prohibited overtaking', 'Allowed overtaking'
+        this.detectionPaints = new Paint[]{
+                carPaint,carPaint,pedestrianPaint,pedestrianPaint,carPaint,carPaint,carPaint,
+                signPaint,signPaint,signPaint,signPaint,signPaint
+        };
     }
 
     public void setResult(AnalysisResult result) {
@@ -103,7 +118,7 @@ public class ResultView extends View {
             rectangle.top = yOffset + rectangle.top * (yOffset/8);
             rectangle.bottom = yOffset + rectangle.bottom * (yOffset/8);
 
-            canvas.drawRect(rectangle, detectionPaint);
+            canvas.drawRect(rectangle, this.detectionPaints[objects.get(i).getClassIndex()]);
         }
     }
 }

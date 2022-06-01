@@ -48,14 +48,18 @@ public class ObjectDetectionActivity extends CameraXActivity<AnalysisResult> imp
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        super.setAnalysisTime(40);
+        //super.setAnalysisTime(40); // TODO: UNCOMMENT TO RELEASE
 
         try {
             this.objectDetector = new PytorchModel(getApplicationContext(), "model.ptl");
         } catch (IOException e) {
             e.printStackTrace();
         }
-        this.detectionAnalyzer = new DetectionAnalyzer(this.objectDetector.getDetectionWidth(), this.objectDetector.getDetectionHeight());
+        this.detectionAnalyzer = new DetectionAnalyzer(
+                this.objectDetector.getDetectionWidth(),
+                this.objectDetector.getDetectionHeight(),
+                this.objectDetector.getNumClasses()
+        );
         this.resultView = findViewById(R.id.resultView);
 
         this.setupTracker();

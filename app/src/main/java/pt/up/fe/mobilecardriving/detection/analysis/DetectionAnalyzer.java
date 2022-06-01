@@ -19,16 +19,18 @@ import java.util.Queue;
 
 public class DetectionAnalyzer {
     private static final int LOOPBACK = 3;
-    private static final float MINIMUM_SCORE = 0.8f * LOOPBACK;
+    private static final float MINIMUM_SCORE = 0.5f * LOOPBACK;
 
     private final int width, height;
+    private final int numClasses;
     private final Queue<EvaluationResult> resultsQueue;
     private float speed;
     private Bitmap bitmap;
 
-    public DetectionAnalyzer(int width, int height) {
+    public DetectionAnalyzer(int width, int height, int numClasses) {
         this.width = width;
         this.height = height;
+        this.numClasses = numClasses;
         this.resultsQueue = new LinkedList<>();
         this.speed = 0;
     }
@@ -65,7 +67,7 @@ public class DetectionAnalyzer {
                 float score = result[i*width+j];
 
                 if (score >= MINIMUM_SCORE) {
-                    objects.add(new DetectionObject(firstResult.second[i*this.width+j], score, new Rect(j, i, j+1, i+1)));
+                    objects.add(new DetectionObject(this.calculateBestClass(i, j), score, new Rect(j, i, j+1, i+1)));
                 }
             }
         }
@@ -91,5 +93,18 @@ public class DetectionAnalyzer {
         this.resultsQueue.add(result);
         if (this.resultsQueue.size() > LOOPBACK)
             this.resultsQueue.remove();
+    }
+
+    private int calculateBestClass(int i, int j) {
+        int[] classCounter = new int[this.numClasses];
+        int classIdx = -1;
+
+        for (EvaluationResult result : this.resultsQueue) {
+            classIdx = result.second[i*width+j];
+            if (++(classCounter[classIdx]) > LOOPBACK / 2) {
+                break;
+            }
+        }
+        return classIdx;
     }
 }
