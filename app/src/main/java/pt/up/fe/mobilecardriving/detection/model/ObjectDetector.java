@@ -11,5 +11,7 @@ public interface ObjectDetector {
 
     int getDetectionWidth();
 
+    int getNumClasses();
+
     EvaluationResult evaluate(Bitmap imageBitmap);
 }
