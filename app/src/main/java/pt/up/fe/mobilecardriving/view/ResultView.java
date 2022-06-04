@@ -11,17 +11,18 @@ import android.view.View;
 
 import java.util.List;
 
-import pt.up.fe.mobilecardriving.detection.analysis.warning.Warning;
-import pt.up.fe.mobilecardriving.model.AnalysisResult;
-import pt.up.fe.mobilecardriving.model.DetectionObject;
+import pt.up.fe.mobilecardriving.util.Position;
+import pt.up.fe.mobilecardriving.warning.Warning;
+import pt.up.fe.mobilecardriving.analysis.AnalysisResult;
+import pt.up.fe.mobilecardriving.detection.DetectionObject;
 
 public class ResultView extends View {
     private static final String[] MOTION_TEXT = new String[]{"STATIONARY", "SLOW", "MEDIUM", "HIGH"};
     private AnalysisResult result;
 
-    private Paint backgroundPaint;
-    private Paint textPaint;
-    private Paint[] detectionPaints;
+    private final Paint backgroundPaint;
+    private final Paint textPaint;
+    private final Paint[] detectionPaints;
 
     public ResultView(Context context) {
         this(context, null);
@@ -35,16 +36,16 @@ public class ResultView extends View {
         super(context, attrs, defStyle);
 
         this.backgroundPaint = new Paint();
-        backgroundPaint.setColor(Color.BLACK);
-        backgroundPaint.setStrokeWidth(0);
-        backgroundPaint.setAlpha(40);
-        backgroundPaint.setStyle(Paint.Style.FILL);
+        this.backgroundPaint.setColor(Color.BLACK);
+        this.backgroundPaint.setStrokeWidth(0);
+        this.backgroundPaint.setAlpha(40);
+        this.backgroundPaint.setStyle(Paint.Style.FILL);
 
         this.textPaint = new Paint();
-        textPaint.setColor(Color.YELLOW);
-        textPaint.setStrokeWidth(0);
-        textPaint.setStyle(Paint.Style.FILL);
-        textPaint.setTextSize(32);
+        this.textPaint.setColor(Color.YELLOW);
+        this.textPaint.setStrokeWidth(0);
+        this.textPaint.setStyle(Paint.Style.FILL);
+        this.textPaint.setTextSize(32);
 
 
         Paint carPaint = new Paint();
@@ -88,7 +89,7 @@ public class ResultView extends View {
     private void drawInformation(Canvas canvas){
         canvas.drawText("Speed: " + ResultView.MOTION_TEXT[this.result.getMotionState().ordinal()], 600, 50, textPaint);
 
-        List<Warning> warnings = this.result.getWarnings();
+        final List<Warning> warnings = this.result.getWarnings();
         canvas.drawText("Warnings:", 10, 50+40, textPaint);
         for (int i = 0; i < warnings.size(); ++i)
             canvas.drawText(warnings.get(i).getMessage(), 20, 50+40 * (i+2), textPaint);
@@ -97,7 +98,7 @@ public class ResultView extends View {
     private void drawDetections(Canvas canvas){
         Bitmap imgBitmap = this.result.getBitmap();
 
-        int imgHeight = (int) getWidth() / 4;
+        int imgHeight = getWidth() / 4;
         int yOffset = getHeight() - imgHeight;
 
         imgBitmap = Bitmap.createScaledBitmap(imgBitmap, getWidth(), imgHeight, false);
@@ -105,18 +106,22 @@ public class ResultView extends View {
         Rect destBitmapRect = new Rect(0, yOffset, imgBitmap.getWidth(), yOffset + imgHeight);
         canvas.drawBitmap(imgBitmap, srcBitmapRect, destBitmapRect, null);
 
-        Rect outOfFocusRect = new Rect(0,0,getWidth(), yOffset);
+        final Rect outOfFocusRect = new Rect(0,0,getWidth(), yOffset);
         canvas.drawRect(outOfFocusRect, backgroundPaint);
 
-        int width = getWidth();
+        int rectangleWidth = getWidth() / 32, rectangleHeight = yOffset / 8;
         List<DetectionObject> objects = this.result.getObjects();
         for (int i = 0; i < objects.size(); ++i){
-            Rect rectangle = objects.get(i).getRect();
+            Position position = objects.get(i).getPosition();
 
-            rectangle.left = (int) rectangle.left * (width/32);
-            rectangle.right = (int) rectangle.right * (width/32);
-            rectangle.top = yOffset + rectangle.top * (yOffset/8);
-            rectangle.bottom = yOffset + rectangle.bottom * (yOffset/8);
+            final int rectangleX = position.getX() * rectangleWidth, rectangleY = yOffset + position.getY() * rectangleHeight;
+
+            final Rect rectangle = new Rect(
+                    rectangleX,
+                    rectangleY,
+                    rectangleX + rectangleWidth,
+                    rectangleY + rectangleHeight
+            );
 
             canvas.drawRect(rectangle, this.detectionPaints[objects.get(i).getClassIndex()]);
         }
