@@ -63,10 +63,10 @@ public class ResultView extends View {
         signPaint.setAlpha(128);
         signPaint.setStyle(Paint.Style.FILL);
 
-        // 'Car', 'Cyclist', 'Pedestrian', 'Person_sitting', 'Tram', 'Truck', 'Van'
+        // 'Vehicle', 'Pedestrian'
         // 'stop', 'Give way', 'prohibited', 'Prohibited overtaking', 'Allowed overtaking'
         this.detectionPaints = new Paint[]{
-                carPaint,carPaint,pedestrianPaint,pedestrianPaint,carPaint,carPaint,carPaint,
+                carPaint,pedestrianPaint,
                 signPaint,signPaint,signPaint,signPaint,signPaint
         };
     }

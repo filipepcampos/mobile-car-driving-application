@@ -1,17 +1,31 @@
 package pt.up.fe.mobilecardriving.detection;
 
-import pt.up.fe.mobilecardriving.util.Pair;
+public class EvaluationResult {
+    float[] kittiScores;
+    int[] kittiClasses;
+    float[] gtsdbScores;
+    int[] gtsdbClasses;
 
-public class EvaluationResult extends Pair<float[], int[]> {
-    public EvaluationResult(float[] scores, int[] classes) {
-        super(scores, classes);
+    public EvaluationResult(float[] kittiScores, int[] kittiClasses, float[] gtsdbScores, int[] gtsdbClasses) {
+        this.kittiScores = kittiScores;
+        this.kittiClasses = kittiClasses;
+        this.gtsdbScores = gtsdbScores;
+        this.gtsdbClasses = gtsdbClasses;
     }
 
-    public float[] getScores() {
-        return super.first;
+    public float[] getKittiScores() {
+        return kittiScores;
     }
 
-    public int[] getClasses() {
-        return super.second;
+    public float[] getGtsdbScores() {
+        return gtsdbScores;
+    }
+
+    public int[] getGtsdbClasses() {
+        return gtsdbClasses;
+    }
+
+    public int[] getKittiClasses() {
+        return kittiClasses;
     }
 }

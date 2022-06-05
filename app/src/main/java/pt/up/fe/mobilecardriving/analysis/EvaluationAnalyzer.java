@@ -12,7 +12,12 @@ import pt.up.fe.mobilecardriving.util.VectorOperation;
 
 public class EvaluationAnalyzer {
     private static final int LOOPBACK = 3;
-    private static final float MINIMUM_SCORE = 0.5f * LOOPBACK;
+    private static final float MINIMUM_SCORE_KITTI = 0.5f * LOOPBACK;
+    private static final float MINIMUM_SCORE_GTSDB = 0.4f * LOOPBACK;
+    enum Dataset {
+        KITTI,
+        GTSDB
+    };
 
     private final int width, height;
     private final int numClasses;
@@ -34,17 +39,26 @@ public class EvaluationAnalyzer {
 
         final Iterator<EvaluationResult> iterator = this.resultsQueue.iterator();
         final EvaluationResult firstResult = iterator.next();
-        float[] result = firstResult.getScores();
+
+        float[] kittiResult = firstResult.getKittiScores();
+        float[] gtsdbResult = firstResult.getGtsdbScores();
         while (iterator.hasNext()) {
-            result = VectorOperation.add(result, iterator.next().getScores());
+            kittiResult = VectorOperation.add(kittiResult, iterator.next().getKittiScores());
+            gtsdbResult = VectorOperation.add(gtsdbResult, iterator.next().getGtsdbScores());
         }
 
         for(int i = 0; i < this.height; ++i){
             for(int j = 0; j < this.width; ++j){
-                float score = result[i*width+j];
-
-                if (score >= MINIMUM_SCORE) {
-                    objects.add(new DetectionObject(this.calculateBestClass(i, j),
+                float score = kittiResult[i*width+j];
+                if (score >= MINIMUM_SCORE_KITTI) {
+                    objects.add(new DetectionObject(this.calculateBestClass(i, j, Dataset.KITTI),
+                            score,
+                            new Position(j, i)
+                    ));
+                }
+                score = gtsdbResult[i*width+j];
+                if (score >= MINIMUM_SCORE_GTSDB) {
+                    objects.add(new DetectionObject(this.calculateBestClass(i, j, Dataset.GTSDB),
                             score,
                             new Position(j, i)
                     ));
@@ -60,15 +74,22 @@ public class EvaluationAnalyzer {
             this.resultsQueue.remove();
     }
 
-    private int calculateBestClass(int i, int j) {
+    private int calculateBestClass(int i, int j, Dataset dataset) {
         final int[] classCounter = new int[this.numClasses];
         int classIdx = -1;
 
         for (EvaluationResult result : this.resultsQueue) {
-            classIdx = result.getClasses()[i*width+j];
+            if(dataset == Dataset.KITTI){
+                classIdx = result.getKittiClasses()[i*width+j];
+            } else {
+                classIdx = result.getGtsdbClasses()[i*width+j];
+            }
             if (++(classCounter[classIdx]) > LOOPBACK / 2) {
                 break;
             }
+        }
+        if(dataset == Dataset.GTSDB){
+            classIdx += 2; // TODO: Receive kitti dataset label size
         }
         return classIdx;
     }
