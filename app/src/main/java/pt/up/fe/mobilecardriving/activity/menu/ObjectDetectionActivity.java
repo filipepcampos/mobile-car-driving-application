@@ -41,7 +41,7 @@ public class ObjectDetectionActivity extends CameraXActivity<AnalysisResult> imp
         //super.setAnalysisTime(40); // TODO: UNCOMMENT TO RELEASE
 
         try {
-            this.objectDetector = new PytorchDetector(getApplicationContext(), "model2.ptl");
+            this.objectDetector = new PytorchDetector(getApplicationContext(), "model.ptl");
             final EvaluationAnalyzer evaluationAnalyzer = new EvaluationAnalyzer(
                     this.objectDetector.getDetectionWidth(),
                     this.objectDetector.getDetectionHeight(),
