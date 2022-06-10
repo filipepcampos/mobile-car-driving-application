@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import pt.up.fe.mobilecardriving.detection.Dataset;
 import pt.up.fe.mobilecardriving.detection.DetectionObject;
 import pt.up.fe.mobilecardriving.detection.EvaluationResult;
 import pt.up.fe.mobilecardriving.util.Position;
@@ -14,10 +15,6 @@ public class EvaluationAnalyzer {
     private static final int LOOPBACK = 3;
     private static final float MINIMUM_SCORE_KITTI = 0.5f * LOOPBACK;
     private static final float MINIMUM_SCORE_GTSDB = 0.4f * LOOPBACK;
-    enum Dataset {
-        KITTI,
-        GTSDB
-    };
 
     private final int width, height;
     private final int numClasses;
@@ -51,14 +48,14 @@ public class EvaluationAnalyzer {
             for(int j = 0; j < this.width; ++j){
                 float score = kittiResult[i*width+j];
                 if (score >= MINIMUM_SCORE_KITTI) {
-                    objects.add(new DetectionObject(this.calculateBestClass(i, j, Dataset.KITTI),
+                    objects.add(new DetectionObject(this.calculateBestClass(i, j, Dataset.Name.KITTI),
                             score,
                             new Position(j, i)
                     ));
                 }
                 score = gtsdbResult[i*width+j];
                 if (score >= MINIMUM_SCORE_GTSDB) {
-                    objects.add(new DetectionObject(this.calculateBestClass(i, j, Dataset.GTSDB),
+                    objects.add(new DetectionObject(this.calculateBestClass(i, j, Dataset.Name.GTSDB) + 2,
                             score,
                             new Position(j, i)
                     ));
@@ -74,22 +71,20 @@ public class EvaluationAnalyzer {
             this.resultsQueue.remove();
     }
 
-    private int calculateBestClass(int i, int j, Dataset dataset) {
+    private int calculateBestClass(int i, int j, Dataset.Name dataset) {
         final int[] classCounter = new int[this.numClasses];
         int classIdx = -1;
 
         for (EvaluationResult result : this.resultsQueue) {
-            if(dataset == Dataset.KITTI){
+            if(dataset == Dataset.Name.KITTI){
                 classIdx = result.getKittiClasses()[i*width+j];
             } else {
                 classIdx = result.getGtsdbClasses()[i*width+j];
             }
+
             if (++(classCounter[classIdx]) > LOOPBACK / 2) {
                 break;
             }
-        }
-        if(dataset == Dataset.GTSDB){
-            classIdx += 2; // TODO: Receive kitti dataset label size
         }
         return classIdx;
     }

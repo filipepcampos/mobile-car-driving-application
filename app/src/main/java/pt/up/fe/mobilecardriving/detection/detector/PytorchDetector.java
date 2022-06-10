@@ -13,13 +13,12 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 
+import pt.up.fe.mobilecardriving.detection.Dataset;
 import pt.up.fe.mobilecardriving.detection.EvaluationResult;
 import pt.up.fe.mobilecardriving.util.AssetLoader;
 
 public class PytorchDetector implements ObjectDetector {
     private final static int HEIGHT = 8, WIDTH = 32;
-    private final static int NUM_CLASSES_KITTI = 2;
-    private final static int NUM_CLASSES_GTSDB = 5;
 
     private final Module module;
 
@@ -33,19 +32,6 @@ public class PytorchDetector implements ObjectDetector {
 
     public int getDetectionWidth() {
         return WIDTH;
-    }
-
-    @Override
-    public int getNumClasses() {
-        return NUM_CLASSES_KITTI + NUM_CLASSES_GTSDB;
-    }
-
-    public static int getNumClassesGtsdb() {
-        return NUM_CLASSES_GTSDB;
-    }
-
-    public static int getNumClassesKitti() {
-        return NUM_CLASSES_KITTI;
     }
 
     public EvaluationResult evaluate(Bitmap imageBitmap) {
@@ -94,7 +80,7 @@ public class PytorchDetector implements ObjectDetector {
                 float score = kittiScoresArray[i* WIDTH +j];
                 float bestClassValue = 0;
                 int bestClassIndex = 0;
-                for(int k = 0; k < NUM_CLASSES_KITTI; ++k) {
+                for(int k = 0; k < Dataset.getNumClassesKitti(); ++k) {
                     float value = kittiClassesArray[k*arrayLength + i* WIDTH + j];
                     if(value > bestClassValue){
                         bestClassValue = value;
@@ -108,7 +94,7 @@ public class PytorchDetector implements ObjectDetector {
                 score = gtsdbScoresArray[i* WIDTH +j];
                 bestClassValue = 0;
                 bestClassIndex = 0;
-                for(int k = 0; k < NUM_CLASSES_GTSDB; ++k) {
+                for(int k = 0; k < Dataset.getNumClassesGtsdb(); ++k) {
                     float value = gtsdbClassesArray[k*arrayLength + i* WIDTH + j];
                     if(value > bestClassValue){
                         bestClassValue = value;
