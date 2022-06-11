@@ -21,6 +21,7 @@ import pt.up.fe.mobilecardriving.activity.camera.CameraXActivity;
 import pt.up.fe.mobilecardriving.analysis.AnalysisResult;
 import pt.up.fe.mobilecardriving.analysis.DetectionAnalyzer;
 import pt.up.fe.mobilecardriving.analysis.EvaluationAnalyzer;
+import pt.up.fe.mobilecardriving.detection.Dataset;
 import pt.up.fe.mobilecardriving.detection.EvaluationResult;
 import pt.up.fe.mobilecardriving.detection.detector.ObjectDetector;
 import pt.up.fe.mobilecardriving.detection.detector.PytorchDetector;
@@ -45,7 +46,7 @@ public class ObjectDetectionActivity extends CameraXActivity<AnalysisResult> imp
             final EvaluationAnalyzer evaluationAnalyzer = new EvaluationAnalyzer(
                     this.objectDetector.getDetectionWidth(),
                     this.objectDetector.getDetectionHeight(),
-                    this.objectDetector.getNumClasses()
+                    Dataset.getNumClasses()
             );
             this.detectionAnalyzer = new DetectionAnalyzer(evaluationAnalyzer);
         } catch (IOException e) {

@@ -13,12 +13,12 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 
+import pt.up.fe.mobilecardriving.detection.Dataset;
 import pt.up.fe.mobilecardriving.detection.EvaluationResult;
 import pt.up.fe.mobilecardriving.util.AssetLoader;
 
 public class PytorchDetector implements ObjectDetector {
     private final static int HEIGHT = 8, WIDTH = 32;
-    private final static int NUM_CLASSES = 12;
 
     private final Module module;
 
@@ -34,10 +34,6 @@ public class PytorchDetector implements ObjectDetector {
         return WIDTH;
     }
 
-    public int getNumClasses() {
-        return NUM_CLASSES;
-    }
-
     public EvaluationResult evaluate(Bitmap imageBitmap) {
         imageBitmap = preProcessBitmap(imageBitmap);
 
@@ -49,45 +45,66 @@ public class PytorchDetector implements ObjectDetector {
         IValue output = this.module.forward(IValue.from(inputTensor));
         Map<String, IValue> outputMap = output.toDictStringKey();
 
-        // hasObjs shape: [1, 1, 8, 32]
-        Tensor hasObjsTensor = Objects.requireNonNull(outputMap.get("hasobjs")).toTensor();
-        // classesTensor shape: [1, 12, 8, 32] (12 classes)
-        Tensor classesTensor = Objects.requireNonNull(outputMap.get("classes")).toTensor();
+        // scoresTensor shape: [1, 1, 8, 32]
+        Tensor kittiScoresTensor = Objects.requireNonNull(outputMap.get("scores_kitti")).toTensor();
+        Tensor gtsdbScoresTensor = Objects.requireNonNull(outputMap.get("scores_gtsdb")).toTensor();
+        // kittiClassesTensor shape: [1, 2, 8, 32] (2 classes)
+        Tensor kittiClassesTensor = Objects.requireNonNull(outputMap.get("classes_kitti")).toTensor();
+        // gtsdbClassesTensor shape: [1, 5, 8, 32] (5 classes)
+        Tensor gtsdbClassesTensor = Objects.requireNonNull(outputMap.get("classes_gtsdb")).toTensor();
 
-        float[] hasObjsArray = hasObjsTensor.getDataAsFloatArray(); // Length 256 (8*32)
-        float[] classesArray = classesTensor.getDataAsFloatArray();
+        float[] kittiScoresArray = kittiScoresTensor.getDataAsFloatArray(); // Length 256 (8*32)
+        float[] kittiClassesArray = kittiClassesTensor.getDataAsFloatArray();
+        float[] gtsdbScoresArray = gtsdbScoresTensor.getDataAsFloatArray();
+        float[] gtsdbClassesArray = gtsdbClassesTensor.getDataAsFloatArray();
 
-        return processOutputs(hasObjsArray, classesArray);
+        return processOutputs(kittiScoresArray, kittiClassesArray, gtsdbScoresArray, gtsdbClassesArray);
     }
 
     private static Bitmap preProcessBitmap(Bitmap imageBitmap) {
         return Bitmap.createScaledBitmap(imageBitmap, 1024, 256, false);
     }
 
-    private static EvaluationResult processOutputs(float[] hasObjsArray, float[] classesArray) {
+    private static EvaluationResult processOutputs(float[] kittiScoresArray, float[] kittiClassesArray,
+                                                   float[] gtsdbScoresArray, float[] gtsdbClassesArray) {
         int arrayLength = HEIGHT * WIDTH;
-        float[] scores = new float[arrayLength];
-        int[] classes = new int[arrayLength];
+        float[] kittiScores = new float[arrayLength];
+        int[] kittiClasses = new int[arrayLength];
+        float[] gtsdbScores = new float[arrayLength];
+        int[] gtsdbClasses = new int[arrayLength];
 
         // TODO: MAYBE SOME CALCULATIONS CAN BE OPTIMIZED
         for(int i = 0; i < HEIGHT; ++i){
             for(int j = 0; j < WIDTH; ++j){
-                float score = hasObjsArray[i* WIDTH +j];
-
+                // KITTI
+                float score = kittiScoresArray[i* WIDTH +j];
                 float bestClassValue = 0;
                 int bestClassIndex = 0;
-                for(int k = 0; k < NUM_CLASSES; ++k) {
-                    float value = classesArray[k*arrayLength + i* WIDTH + j];
+                for(int k = 0; k < Dataset.getNumClassesKitti(); ++k) {
+                    float value = kittiClassesArray[k*arrayLength + i* WIDTH + j];
                     if(value > bestClassValue){
                         bestClassValue = value;
                         bestClassIndex = k;
                     }
                 }
+                kittiScores[i* WIDTH +j] = score;
+                kittiClasses[i* WIDTH +j] = bestClassIndex;
 
-                scores[i* WIDTH +j] = score;
-                classes[i* WIDTH +j] = bestClassIndex;
+                // GTSDB - TODO: Extract method
+                score = gtsdbScoresArray[i* WIDTH +j];
+                bestClassValue = 0;
+                bestClassIndex = 0;
+                for(int k = 0; k < Dataset.getNumClassesGtsdb(); ++k) {
+                    float value = gtsdbClassesArray[k*arrayLength + i* WIDTH + j];
+                    if(value > bestClassValue){
+                        bestClassValue = value;
+                        bestClassIndex = k;
+                    }
+                }
+                gtsdbScores[i* WIDTH +j] = score;
+                gtsdbClasses[i* WIDTH +j] = bestClassIndex;
             }
         }
-        return new EvaluationResult(scores, classes);
+        return new EvaluationResult(kittiScores, kittiClasses, gtsdbScores, gtsdbClasses);
     }
 }
