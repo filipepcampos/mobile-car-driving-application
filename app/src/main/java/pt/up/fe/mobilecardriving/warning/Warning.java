@@ -1,14 +1,23 @@
 package pt.up.fe.mobilecardriving.warning;
 
-public abstract class Warning {
+public abstract class Warning implements Comparable<Warning> {
     private final String message;
-    // TODO: private Image icon;
+    private final int priority;
 
-    public Warning(String message) {
+    public Warning(String message, int priority) {
         this.message = message;
+        this.priority = priority;
+    }
+
+    public int getPriority() {
+        return priority;
     }
 
     public String getMessage() {
         return this.message;
+    }
+
+    public int compareTo(Warning warning){
+        return this.priority - warning.getPriority();
     }
 }

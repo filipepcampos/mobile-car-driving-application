@@ -78,21 +78,14 @@ public class ResultView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        // TODO: DELETE DEBUG CODE
         if (this.result != null) {
-            this.drawInformation(canvas);
             this.drawDetections(canvas);
+            this.drawInformation(canvas);
         }
-        // TODO: SHOW THE INFORMATION OF ANALYSIS RESULT
     }
 
     private void drawInformation(Canvas canvas){
         canvas.drawText("Speed: " + ResultView.MOTION_TEXT[this.result.getMotionState().ordinal()], 600, 50, textPaint);
-
-        final List<Warning> warnings = this.result.getWarnings();
-        canvas.drawText("Warnings:", 10, 50+40, textPaint);
-        for (int i = 0; i < warnings.size(); ++i)
-            canvas.drawText(warnings.get(i).getMessage(), 20, 50+40 * (i+2), textPaint);
     }
 
     private void drawDetections(Canvas canvas){
@@ -101,12 +94,14 @@ public class ResultView extends View {
         int imgHeight = getWidth() / 4;
         int yOffset = getHeight() - imgHeight;
 
+
         imgBitmap = Bitmap.createScaledBitmap(imgBitmap, getWidth(), imgHeight, false);
         Rect srcBitmapRect = new Rect(0, 0, imgBitmap.getWidth(), imgBitmap.getHeight());
-        Rect destBitmapRect = new Rect(0, yOffset, imgBitmap.getWidth(), yOffset + imgHeight);
+        Rect destBitmapRect = new Rect(0, 0, imgBitmap.getWidth(), imgHeight);
         canvas.drawBitmap(imgBitmap, srcBitmapRect, destBitmapRect, null);
 
-        final Rect outOfFocusRect = new Rect(0,0,getWidth(), yOffset);
+
+        final Rect outOfFocusRect = new Rect(0,0, getWidth(), yOffset);
         canvas.drawRect(outOfFocusRect, backgroundPaint);
 
         int rectangleWidth = getWidth() / 32, rectangleHeight = yOffset / 8;
@@ -114,7 +109,7 @@ public class ResultView extends View {
         for (int i = 0; i < objects.size(); ++i){
             Position position = objects.get(i).getPosition();
 
-            final int rectangleX = position.getX() * rectangleWidth, rectangleY = yOffset + position.getY() * rectangleHeight;
+            int rectangleX = position.getX() * rectangleWidth, rectangleY = yOffset + position.getY() * rectangleHeight;
 
             final Rect rectangle = new Rect(
                     rectangleX,
@@ -124,6 +119,18 @@ public class ResultView extends View {
             );
 
             canvas.drawRect(rectangle, this.detectionPaints[objects.get(i).getClassIndex()]);
+
+            rectangleX = position.getX() * rectangleWidth;
+            rectangleY = position.getY() * rectangleHeight;
+
+            final Rect rectangle2 = new Rect(
+                    rectangleX,
+                    rectangleY,
+                    rectangleX + rectangleWidth,
+                    rectangleY + rectangleHeight
+            );
+
+            canvas.drawRect(rectangle2, this.detectionPaints[objects.get(i).getClassIndex()]);
         }
     }
 }
