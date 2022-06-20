@@ -8,7 +8,10 @@ import java.util.List;
 import pt.up.fe.mobilecardriving.detection.DetectionObject;
 import pt.up.fe.mobilecardriving.detection.EvaluationResult;
 import pt.up.fe.mobilecardriving.motion.MotionState;
-import pt.up.fe.mobilecardriving.warning.ProximityWarning;
+import pt.up.fe.mobilecardriving.warning.CarProximityWarning;
+import pt.up.fe.mobilecardriving.warning.PedestrianProximityWarning;
+import pt.up.fe.mobilecardriving.warning.TrafficSign;
+import pt.up.fe.mobilecardriving.warning.TrafficSignWarning;
 import pt.up.fe.mobilecardriving.warning.Warning;
 
 public class DetectionAnalyzer {
@@ -17,9 +20,11 @@ public class DetectionAnalyzer {
     private float speed;
     private Bitmap bitmap;
 
+    private static int CAR_DETECTION_LOWER_LIMIT = 7;
+    private static int PEDESTRIAN_DETECTION_LOWER_LIMIT = 4;
+
     public DetectionAnalyzer(EvaluationAnalyzer evaluationAnalyzer) {
         this.evaluationAnalyzer = evaluationAnalyzer;
-
         this.speed = 0;
     }
 
@@ -38,9 +43,36 @@ public class DetectionAnalyzer {
     }
 
     private List<Warning> getWarnings() {
-        // TODO: REPLACE MOCK DATA BY LOGIC
         final List<Warning> warnings = new ArrayList<>();
-        warnings.add(new ProximityWarning());
+        for(DetectionObject obj : evaluationAnalyzer.getDetectionObjects()){
+            switch(obj.getClassIndex()){
+                case 0:
+                    if(obj.getPosition().getY() >= CAR_DETECTION_LOWER_LIMIT){
+                        warnings.add(new CarProximityWarning(6));
+                    }
+                    break;
+                case 1:
+                    if(obj.getPosition().getY() >= PEDESTRIAN_DETECTION_LOWER_LIMIT){
+                        warnings.add(new PedestrianProximityWarning(0));
+                    }
+                    break;
+                case 2:
+                    warnings.add(new TrafficSignWarning(TrafficSign.STOP, 1));
+                    break;
+                case 3:
+                    warnings.add(new TrafficSignWarning(TrafficSign.GIVE_WAY, 2));
+                    break;
+                case 4:
+                    warnings.add(new TrafficSignWarning(TrafficSign.PROHIBITED, 3));
+                    break;
+                case 5:
+                    warnings.add(new TrafficSignWarning(TrafficSign.PROHIBITED_OVERTAKING, 4));
+                    break;
+                case 6:
+                    warnings.add(new TrafficSignWarning(TrafficSign.ALLOWED_OVERTAKING, 5));
+                    break;
+            }
+        }
         return  warnings;
     }
 

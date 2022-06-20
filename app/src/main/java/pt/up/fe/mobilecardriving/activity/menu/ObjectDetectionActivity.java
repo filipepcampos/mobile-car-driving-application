@@ -27,6 +27,8 @@ import pt.up.fe.mobilecardriving.detection.detector.ObjectDetector;
 import pt.up.fe.mobilecardriving.detection.detector.PytorchDetector;
 import pt.up.fe.mobilecardriving.motion.MotionProvider;
 import pt.up.fe.mobilecardriving.motion.MotionProviderListener;
+import pt.up.fe.mobilecardriving.speech.TextToSpeech;
+import pt.up.fe.mobilecardriving.speech.WarningSpeaker;
 import pt.up.fe.mobilecardriving.util.AssetLoader;
 import pt.up.fe.mobilecardriving.view.ResultView;
 
@@ -34,15 +36,18 @@ public class ObjectDetectionActivity extends CameraXActivity<AnalysisResult> imp
     private MotionProvider motionProvider;
     private ObjectDetector objectDetector;
     private DetectionAnalyzer detectionAnalyzer;
+    private WarningSpeaker warningSpeaker;
     private ResultView resultView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //super.setAnalysisTime(40); // TODO: UNCOMMENT TO RELEASE
+        super.setAnalysisTime(40);
 
+        TextToSpeech textToSpeech = new TextToSpeech(getApplicationContext());
+        this.warningSpeaker = new WarningSpeaker(textToSpeech);
         try {
-            this.objectDetector = new PytorchDetector(getApplicationContext(), "model.ptl");
+            this.objectDetector = new PytorchDetector(getApplicationContext(), "model2.ptl");
             final EvaluationAnalyzer evaluationAnalyzer = new EvaluationAnalyzer(
                     this.objectDetector.getDetectionWidth(),
                     this.objectDetector.getDetectionHeight(),
@@ -103,7 +108,10 @@ public class ObjectDetectionActivity extends CameraXActivity<AnalysisResult> imp
         final EvaluationResult evaluationResult = this.objectDetector.evaluate(croppedBitmap);
         this.detectionAnalyzer.update(evaluationResult, this.motionProvider.getSpeed(), croppedBitmap);
 
-        return this.detectionAnalyzer.getAnalysisResult();
+        AnalysisResult analysisResult = this.detectionAnalyzer.getAnalysisResult();
+        this.warningSpeaker.speak(analysisResult.getWarnings());
+
+        return analysisResult;
     }
 
     @Override

@@ -18,7 +18,7 @@ public class TextToSpeech {
             @Override
             public void onInit(int i) {
                 if (i == android.speech.tts.TextToSpeech.SUCCESS) {
-                    final int result = tts.setLanguage(Locale.US); // TODO: GET LOCAL LANGUAGE
+                    final int result = tts.setLanguage(Locale.US);
                     if (result == android.speech.tts.TextToSpeech.LANG_MISSING_DATA ||
                             result == android.speech.tts.TextToSpeech.LANG_NOT_SUPPORTED) {
                         Log.e("TTS", "Language not supported");

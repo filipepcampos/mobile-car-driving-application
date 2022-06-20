@@ -44,6 +44,7 @@ public class PytorchDetector implements ObjectDetector {
 
         IValue output = this.module.forward(IValue.from(inputTensor));
         Map<String, IValue> outputMap = output.toDictStringKey();
+        System.out.println(outputMap.keySet());
 
         // scoresTensor shape: [1, 1, 8, 32]
         Tensor kittiScoresTensor = Objects.requireNonNull(outputMap.get("scores_kitti")).toTensor();
@@ -73,7 +74,6 @@ public class PytorchDetector implements ObjectDetector {
         float[] gtsdbScores = new float[arrayLength];
         int[] gtsdbClasses = new int[arrayLength];
 
-        // TODO: MAYBE SOME CALCULATIONS CAN BE OPTIMIZED
         for(int i = 0; i < HEIGHT; ++i){
             for(int j = 0; j < WIDTH; ++j){
                 // KITTI
@@ -90,7 +90,7 @@ public class PytorchDetector implements ObjectDetector {
                 kittiScores[i* WIDTH +j] = score;
                 kittiClasses[i* WIDTH +j] = bestClassIndex;
 
-                // GTSDB - TODO: Extract method
+                // GTSDB
                 score = gtsdbScoresArray[i* WIDTH +j];
                 bestClassValue = 0;
                 bestClassIndex = 0;
