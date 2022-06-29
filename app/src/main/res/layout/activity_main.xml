@@ -81,18 +81,18 @@
             app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent">
 
         <TextView
-                android:id="@+id/credits"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:lines="6"
-                android:maxLines="6"
-                android:gravity="center"
-                android:text="Developed with great affection by:\n\nAndré Cruz, Filipe Campos, Francisco Cerqueira,\n Ricardo Cruz and Vasco Alves."
-                android:textSize="12sp"
-                android:textColor="@color/black"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+            android:id="@+id/credits"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:lines="6"
+            android:maxLines="6"
+            android:text="Developed with great affection by:\nFilipe Campos, Francisco Cerqueira and Vasco Alves.\n\nSupervised by:\nRicardo Cruz"
+            android:textColor="@color/black"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

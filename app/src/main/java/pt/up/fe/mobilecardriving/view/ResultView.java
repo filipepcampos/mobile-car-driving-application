@@ -1,7 +1,6 @@
 package pt.up.fe.mobilecardriving.view;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -38,7 +37,7 @@ public class ResultView extends View {
         this.backgroundPaint = new Paint();
         this.backgroundPaint.setColor(Color.BLACK);
         this.backgroundPaint.setStrokeWidth(0);
-        this.backgroundPaint.setAlpha(40);
+        this.backgroundPaint.setAlpha(100);
         this.backgroundPaint.setStyle(Paint.Style.FILL);
 
         this.textPaint = new Paint();
@@ -89,17 +88,8 @@ public class ResultView extends View {
     }
 
     private void drawDetections(Canvas canvas){
-        Bitmap imgBitmap = this.result.getBitmap();
-
         int imgHeight = getWidth() / 4;
         int yOffset = getHeight() - imgHeight;
-
-
-        imgBitmap = Bitmap.createScaledBitmap(imgBitmap, getWidth(), imgHeight, false);
-        Rect srcBitmapRect = new Rect(0, 0, imgBitmap.getWidth(), imgBitmap.getHeight());
-        Rect destBitmapRect = new Rect(0, 0, imgBitmap.getWidth(), imgHeight);
-        canvas.drawBitmap(imgBitmap, srcBitmapRect, destBitmapRect, null);
-
 
         final Rect outOfFocusRect = new Rect(0,0, getWidth(), yOffset);
         canvas.drawRect(outOfFocusRect, backgroundPaint);
@@ -119,18 +109,6 @@ public class ResultView extends View {
             );
 
             canvas.drawRect(rectangle, this.detectionPaints[objects.get(i).getClassIndex()]);
-
-            rectangleX = position.getX() * rectangleWidth;
-            rectangleY = position.getY() * rectangleHeight;
-
-            final Rect rectangle2 = new Rect(
-                    rectangleX,
-                    rectangleY,
-                    rectangleX + rectangleWidth,
-                    rectangleY + rectangleHeight
-            );
-
-            canvas.drawRect(rectangle2, this.detectionPaints[objects.get(i).getClassIndex()]);
         }
     }
 }
