@@ -47,7 +47,7 @@ public class ObjectDetectionActivity extends CameraXActivity<AnalysisResult> imp
         TextToSpeech textToSpeech = new TextToSpeech(getApplicationContext());
         this.warningSpeaker = new WarningSpeaker(textToSpeech);
         try {
-            this.objectDetector = new PytorchDetector(getApplicationContext(), "model2.ptl");
+            this.objectDetector = new PytorchDetector(getApplicationContext(), "model.ptl");
             final EvaluationAnalyzer evaluationAnalyzer = new EvaluationAnalyzer(
                     this.objectDetector.getDetectionWidth(),
                     this.objectDetector.getDetectionHeight(),
